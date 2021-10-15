@@ -51,7 +51,7 @@ describe('[POST] /api/auth/login', () => {
     await db('users').insert({
       "username": "gimli",
       "password": "$2a$06$yTCC.Dzh0ekAn4esaE68F.bTHPZrtx64Ptpy/6ksDQvsO7fy.PrA."
-  });
+    });
   });
   it('can successfully login user', async () => {
     const loggedIn = await request(server).post('/api/auth/login')
@@ -88,5 +88,14 @@ describe('[GET] /api/jokes', () => {
         Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoyLCJ1c2VybmFtZSI6ImdpbWxpIiwiaWF0IjoxNjM0MzM0NDQ2LCJleHAiOjE2MzQ0MjA4NDZ9.nf3u1Tvt-7PgVP72bUixwXMSJgwEX6XDQwCoj6rIICs'
       });
     expect(res.status).toBe(200);
-  })
+  });
+  it('proper error response if token is not valid', async () => {
+    const res = await request(server).get('/api/jokes')
+      .set({
+        Authorization: 'totally a legit cookie aspfoajsdf;lkajdow'
+      });
+    expect(res.body).toMatchObject({
+      message: 'token invalid'
+    });
+  });
 });
