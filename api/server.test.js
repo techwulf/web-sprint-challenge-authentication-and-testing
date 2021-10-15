@@ -7,9 +7,13 @@ test('sanity', () => {
   expect(true).toBe(true);
 });
 
-beforeEach(async () => {
+beforeAll(async () => {
   await db.migrate.rollback();
   await db.migrate.latest();
+});
+
+beforeEach(async () => {
+  await db('users').delete();
 });
 
 afterAll(async () => {
@@ -62,4 +66,27 @@ describe('[POST] /api/auth/login', () => {
       message: 'username and password required'
     });
   });
+  it('proper error response on incorrect password', async () => {
+    const loggedIn = await request(server).post('/api/auth/login')
+      .send({username: 'gimli', password: 'andMyBow'});
+    expect(loggedIn.body).toMatchObject({
+      message: 'invalid credentials'
+    });
+  });
+});
+
+describe('[GET] /api/jokes', () => {
+  it('proper error response if token not provided', async () => {
+    const res = await request(server).get('/api/jokes');
+    expect(res.body).toMatchObject({
+      message: 'token required'
+    });
+  });
+  it('can successfully fetch jokes on valid token', async () => {
+    const res = await request(server).get('/api/jokes')
+      .set({
+        Authorization: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWJqZWN0IjoyLCJ1c2VybmFtZSI6ImdpbWxpIiwiaWF0IjoxNjM0MzM0NDQ2LCJleHAiOjE2MzQ0MjA4NDZ9.nf3u1Tvt-7PgVP72bUixwXMSJgwEX6XDQwCoj6rIICs'
+      });
+    expect(res.status).toBe(200);
+  })
 });
