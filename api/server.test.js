@@ -16,11 +16,15 @@ afterAll(async () => {
   await db.destroy();
 });
 
-describe('[POST] /api/auth', () => {
+describe('[POST] /api/auth/register', () => {
   let res;
   const newUser = {username: 'legolas', password: 'thatOnlyCountsAsOne'};
   beforeEach(async () => {
-    res = await request(server).post('/api/auth/')
+    res = await request(server).post('/api/auth/register')
       .send(newUser);
+  });
+  it('adds new user into the database', async () => {
+    const users = await db('users');
+    expect(users).toHaveLength(1);
   });
 })
