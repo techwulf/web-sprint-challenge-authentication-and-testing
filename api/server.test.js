@@ -27,4 +27,11 @@ describe('[POST] /api/auth/register', () => {
     const users = await db('users');
     expect(users).toHaveLength(1);
   });
-})
+  it('proper error response on lacking credentials', async () => {
+    const lacking = await request(server).post('/api/auth/register')
+      .send({});
+    expect(lacking.body).toMatchObject({
+      message: 'username and password required'
+    });
+  });
+});
